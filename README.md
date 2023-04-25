@@ -28,7 +28,7 @@
 * PyPi installation
 
   ```bash
-  pip install
+  pip install audioviz
   ```
 
 * setup.py
@@ -39,10 +39,6 @@
 
 ## Future Works ##
 
-* Portability issues
-  * To wrap it to a package
-  * Submit to PyPi
-  * To install it through "pip" command
 * Colab upload solution
   * Direct instruction
 * Programming Copilot
