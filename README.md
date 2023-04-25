@@ -1,4 +1,4 @@
-# NTHU_Music_AI_Tools ##
+# audioviz-colab ##
 
 * An user-friendly music information retrieval visualization API
 * Coordinated by Prof. Li Su, Prof. Yufen Huang from Academia Sinica
