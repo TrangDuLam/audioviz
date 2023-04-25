@@ -1,0 +1,13 @@
+# 檔案名稱 .gitignore
+
+# packaging 
+*.egg-info
+
+# build files
+build/
+
+# distribution file
+dist/
+
+# setup config
+*.cfg
