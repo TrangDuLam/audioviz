@@ -6,7 +6,7 @@ setup(
     version='0.1.0',
     description='An user-friendly music information retrieval tools interfacing with Google Colab',
 
-    url='https://github.com/TrangDuLam/NTHU_Music_AI_Tools',
+    url='https://github.com/TrangDuLam/audioviz',
     author='ayTrang',
     author_email='andrew.chuang@gapp.nthu.edu.tw',
     license='MIT',
