@@ -7,6 +7,7 @@ from plotly.subplots import make_subplots
 import scipy
 
 from numpy import typing as npt
+import IPython.display as ipd
 
 from .colabInterface import *
 
@@ -37,6 +38,7 @@ def onsets_detection(y: npt.ArrayLike, sr: int, write_to_wav: bool = False) -> N
 
     # Save the processed audio
     y_onset_clicks = librosa.clicks(frames=onset_frames, sr=sr, length=len(y))
+    ipd.Audio(y_onset_clicks, rate=sr)
     audio_save_and_downloader('onset_click.wav', y_onset_clicks, sr)
 
 
@@ -120,6 +122,7 @@ def beat_tracking(y: npt.ArrayLike, sr:int, write_to_wav: bool = True, hop_lengt
 
     # Save processed audio
     y_beats = librosa.clicks(frames=beats, sr=sr, length=len(y))
+    ipd.Audio(y_beats, rate=sr)
     audio_save_and_downloader('beat_click.wav', y_beats, sr)
 
 

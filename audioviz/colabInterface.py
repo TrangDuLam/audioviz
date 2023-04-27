@@ -25,7 +25,7 @@ def noMsg(arg):
 
 def save_and_downloader(filename: str, header_of_file: npt.ArrayLike, result_array: npt.ArrayLike) :
 
-    buttonDownload = widgets.Button(description = 'Download & Save')
+    buttonDownload = widgets.Button(description = '.csv Download & Save')
     buttonCancel =  widgets.Button(description = 'Cancel') 
     buttonDownload.on_click(functools.partial(core_download_and_save, filename, header_of_file, result_array))
     buttonCancel.on_click(noMsg)
@@ -41,7 +41,7 @@ def core_audio_download_and_save(filename: str, audio_array: npt.ArrayLike, sr: 
 
 def audio_save_and_downloader(filename: str, audio_array: npt.ArrayLike, sr: int) :
 
-    buttonDownload = widgets.Button(description = 'Download & Save')
+    buttonDownload = widgets.Button(description = 'Audio Download & Save')
     buttonCancel =  widgets.Button(description = 'Cancel') 
     buttonDownload.on_click(functools.partial(core_audio_download_and_save, filename, audio_array, sr))
     buttonCancel.on_click(noMsg)
