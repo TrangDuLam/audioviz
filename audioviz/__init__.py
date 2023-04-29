@@ -8,3 +8,6 @@ from . import TimbreAnalysis
 
 # Interfacing
 from . import colabInterface
+
+# Support
+import librosa
