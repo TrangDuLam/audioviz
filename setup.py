@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='audioviz',
     packages=['audioviz'],
-    version='0.1.3',
+    version='0.1.4',
     description='An user-friendly music information retrieval tools interfacing with Google Colab',
 
     url='https://github.com/TrangDuLam/audioviz',
