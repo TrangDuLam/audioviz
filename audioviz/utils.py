@@ -1,5 +1,6 @@
 import numpy as np
 import scipy
+import librosa
 
 from IPython.display import Audio
 
@@ -26,3 +27,15 @@ def audio_player(y: npt.ArrayLike, sr: int) -> None :
     sr: sampling rate (22050 Hz by default)
     '''
     return Audio(data=y, rate=sr)
+
+def load_example_audio(filename: str) -> None :
+    '''
+    To load the example audio
+
+    '''
+    if filename == 'Mozart' :
+        y, sr = librosa.load('./example_audio/Mozart_Turkish_March.wav', duration=30)
+    if filename == 'Brahms' :
+        y, sr = librosa.load('./example_audio/Hungarian_Dance_No_5.wav', duration=30)
+        
+    return y, sr
