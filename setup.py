@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='audioviz',
     packages=['audioviz'],
-    version='0.1.4',
+    version='0.1.5dev',
     description='An user-friendly music information retrieval tools interfacing with Google Colab',
 
     url='https://github.com/TrangDuLam/audioviz',
@@ -14,6 +14,8 @@ setup(
     keywords=['Music Information Retrieval', "Academia Sinica", "NTHU"],
 
     install_requires = ["numpy", 
+                        "matplotlib",
+                        "pandas",
                         "scipy", 
                         "librosa", 
                         "madmom", 
