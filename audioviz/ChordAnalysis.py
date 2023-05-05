@@ -13,6 +13,31 @@ import libfmp.c4
 
 from .colabInterface import *
 
+def simple_chord(filename: str) -> None:
+    
+    dcp = DeepChromaProcessor()
+    decode = DeepChromaChordRecognitionProcessor()
+    chroma = dcp(filename)
+    chrod_rec_res = decode(chroma)
+    
+    chord_seq = [c[2] for c in chrod_rec_res]
+    time_slice = [np.round(c[0], 1) for c in chrod_rec_res]
+    end_time = np.round(chrod_rec_res[-1][1], 1)
+    duration = np.arange(0, end_time, 0.1)
+    color_encode_list = list(set(chord_seq))
+    
+    chord_hm = np.ones((len(color_encode_list), len(duration)))
+    for i in range(1, len(time_slice)):
+        chord_hm[color_encode_list.index(chord_seq[i-1])][int(time_slice[i-1]*10):int(time_slice[i]*10)] = 0
+        
+    plt.figure(figsize=(30, 12))
+    plt.imshow(chord_hm, interpolation='none', cmap='spring', aspect='auto')
+    plt.xticks(np.arange(0, len(duration), 300), duration[::300])
+    plt.xlabel('Time (seconds)')
+    plt.yticks(np.arange(0, len(color_encode_list)), color_encode_list)
+    plt.ylabel('Chord')
+    plt.title('Chord recognition')
+
 def compute_chromagram_from_filename(fn_wav, Fs=22050, N=4096, H=2048, gamma=None, version='STFT', norm='2'):
     """Compute chromagram for WAV file specified by filename
 

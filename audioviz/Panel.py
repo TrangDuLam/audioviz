@@ -1,58 +1,74 @@
-import librosa
-import scipy 
 import numpy as np
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+import librosa
+import matplotlib.pyplot as plt
 
-from numpy import typing as npt
+from madmom.audio.chroma import DeepChromaProcessor
+from madmom.features.chords import DeepChromaChordRecognitionProcessor
 
-class Dashbroad() :
+class Dashboard():
     
-    def __init__(self, y: npt.ArrayLike, sr: int):
-        self.y = y
-        self.sr = sr
+    def __init__(self, fn) -> None:
+        
+        self.fn = fn
+        self._y, self._sr = librosa.load(fn)
+        
+    def simple_chord_helper(self):
 
-    def show_summary(self) :
+        dcp = DeepChromaProcessor()
+        decode = DeepChromaChordRecognitionProcessor()
+        chroma = dcp(self.fn)
+        chrod_rec_res = decode(chroma)
         
-        '''
-        Ploting the summary of the audio file, including
+        chord_seq = [c[2] for c in chrod_rec_res]
+        time_slice = [np.round(c[0], 1) for c in chrod_rec_res]
+        end_time = np.round(chrod_rec_res[-1][1], 1)
+        duration = np.arange(0, end_time, 0.1)
+        color_encode_list = list(set(chord_seq))
         
-        1. Time domain waveform
-        2. Pitch contour
-        3. Chord recognition heatmap 
+        chord_hm = np.ones((len(color_encode_list), len(duration)))
+        for i in range(1, len(time_slice)):
+            chord_hm[color_encode_list.index(chord_seq[i-1])][int(time_slice[i-1]*10):int(time_slice[i]*10)] = 0
+            
+        return chord_hm, color_encode_list, duration
+    
+    def simple_pitch_helper(self):
         
-        '''
-        fig = make_subplots(rows = 3, cols = 1, shared_xaxes=True, 
-                        subplot_titles=('Waveform', 'Pitch & Spectorgram', 'Chord Recognition'))
+        f0, _, _ = librosa.pyin(self._y,
+                                fmin=librosa.note_to_hz('C2'),
+                                fmax=librosa.note_to_hz('C7'))
         
-        times = (1 / self.sr) * np.arange(len(self.y))
-        fig.append_trace(
-            go.Scatter(x = times, y = self.y,
-            mode = 'lines')
-        )
-        
-        S_dB = librosa.amplitude_to_db(np.abs(librosa.stft(self.y, n_fft=2048)), ref=np.max)
-        f0, _, _ = librosa.pyin(self.y,
-                    fmin=librosa.note_to_hz('C2'),
-                    fmax=librosa.note_to_hz('C7'), frame_length = 2048)
         times = librosa.times_like(f0)
-        freqs = librosa.fft_frequencies(sr = self.sr , n_fft = 2048)
         
-        # To study
-        '''
-        fig.append_trace(
-            go.Heatmap(z=S_dB, x=times, y=freqs, colorbar=dict(title='dB'), colorscale='Viridis')
-            go.Scatter(x=times, y=f0, name='Pitch', mode='lines', line_color='red', line_width = 3.5)
-        )
-        '''
-                    
+        D = librosa.amplitude_to_db(np.abs(librosa.stft(self._y)), ref=np.max)
+        
+        return f0, times, D
     
-    def save_summary(self):
-        '''
-        Saving the summary of the audio file, including
+    def summary(self):
         
-        1. Beat
-        2. 
+        fig = plt.figure(figsize=(35, 25))
+        # Time-domain waveform
+        ax0 = fig.add_subplot(3, 1, 1)
+        times = np.arange(len(self._y)) / self._sr
+        ax0.plot(times, self._y)
+        ax0.xaxis.set_ticklabels([])
+        ax0.set_title('Waveform')
         
-        '''
-        pass
+        # A simple version of chord recognition
+        chord_map, enlist, dur = self.simple_chord_helper()
+        ax1 = fig.add_subplot(3, 1, 2)
+        ax1.imshow(chord_map, interpolation='none', cmap='spring', aspect='auto')
+        ax1.set_xticks(np.arange(0, len(dur), 300), dur[::300])
+        ax1.xaxis.set_ticklabels([])
+        ax1.set_yticks(np.arange(0, len(enlist)), enlist)
+        ax1.set_ylabel('Chord')
+        ax1.set_title('Chord Recognition')
+        
+        # Pitch
+        ax2 = fig.add_subplot(3, 1, 3)
+        f0_contour, f0_times, D = self.simple_pitch_helper()
+        img = librosa.display.specshow(D, x_axis='time', y_axis='log', ax=ax2)
+        ax2.set_title('Fundamental Frequency')
+        ax2.plot(f0_times, f0_contour, label='f0', color='cyan', linewidth=3)
+        ax2.legend(loc='upper right')
+        
+        
