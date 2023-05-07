@@ -1,7 +1,7 @@
 # audioviz-colab ##
 
 * An user-friendly music information retrieval visualization API interfacing with Google Colab
-* Coordinated by Prof. Li Su, Prof. Yufen Huang from Academia Sinica, Taipei, Taiwan
+* Coordinated by Prof. [Li Su](https://homepage.iis.sinica.edu.tw/pages/lisu/index_en.html), Prof. [Yu-Fen Huang](https://yfhuang.info/) from the [Music and Culture Technology Lab](https://sites.google.com/view/mctl/), Academia Sinica, Taipei, Taiwan
 * A collaration project with graduate students from National Tsing Hua University, Hsinchu, Taiwan
 
 ## Introduction to this packages ##
