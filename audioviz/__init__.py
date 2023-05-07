@@ -6,6 +6,7 @@ from . import ChordAnalysis
 from . import StructureAnalysis
 from . import TimbreAnalysis
 from . import Panel
+from . import utils
 
 # Interfacing
 from . import colabInterface
