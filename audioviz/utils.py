@@ -2,6 +2,7 @@ import numpy as np
 import scipy
 import librosa
 
+import IPython.display as ipd
 from IPython.display import Audio
 
 import numpy.typing as npt
@@ -34,8 +35,8 @@ def load_example_audio(filename: str) -> None :
 
     '''
     if filename == 'Mozart' :
-        y, sr = librosa.load('./example_audio/Mozart_Turkish_March.wav', duration=30)
+        y, sr = librosa.load('./example/Mozart_Turkish_March.wav', duration=30)
     if filename == 'Brahms' :
-        y, sr = librosa.load('./example_audio/Hungarian_Dance_No_5.wav', duration=30)
+        y, sr = librosa.load('./exampl/Hungarian_Dance_No_5.wav', duration=30)
         
     return y, sr
