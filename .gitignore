@@ -11,3 +11,6 @@ dist/
 
 # setup config
 *.cfg
+
+# .png
+*.png

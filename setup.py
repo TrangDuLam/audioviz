@@ -1,11 +1,17 @@
 from setuptools import setup, find_packages
 
+with open("README.md", "r") as f:
+    long_description = f.read()
+
 setup(
     name='audioviz',
     packages=['audioviz'],
-    version='0.1.5dev',
+    version='0.1.5dev1',
+    
     description='An user-friendly music information retrieval tools interfacing with Google Colab',
-
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    
     url='https://github.com/TrangDuLam/audioviz',
     author='ayTrang',
     author_email='andrew.chuang@gapp.nthu.edu.tw',
