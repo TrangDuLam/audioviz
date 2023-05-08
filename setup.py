@@ -6,7 +6,7 @@ with open("README.md", "r") as f:
 setup(
     name='audioviz',
     packages=['audioviz'],
-    version='0.1.7',
+    version='0.1.8.dev1',
     
     description='An user-friendly music information retrieval tools interfacing with Google Colab',
     long_description=long_description,
@@ -24,7 +24,6 @@ setup(
                         "pandas",
                         "scipy", 
                         "librosa", 
-                        "madmom", 
                         "libfmp", 
                         "plotly",
                         "soundfile",
@@ -40,6 +39,6 @@ setup(
         'Programming Language :: Python :: 3.10',
     ],
     
-    python_requires='>=3.9, !=3.10',
+    python_requires='>=3.9'
 
 )
