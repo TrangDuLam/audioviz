@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from .ChordAnalysis import *
 
-class Dashboard():
+class Dashboard:
     
     def __init__(self, fn) -> None:
         
