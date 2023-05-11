@@ -31,7 +31,7 @@ def save_and_downloader(filename: str, header_of_file: npt.ArrayLike, result_arr
     buttonCancel.on_click(noMsg)
 
     display(buttonDownload)
-    display(buttonCancel)
+    #display(buttonCancel)
 
 def core_audio_download_and_save(filename: str, audio_array: npt.ArrayLike, sr: int, arg) :
     
@@ -47,4 +47,4 @@ def audio_save_and_downloader(filename: str, audio_array: npt.ArrayLike, sr: int
     buttonCancel.on_click(noMsg)
 
     display(buttonDownload)
-    display(buttonCancel)
+    #display(buttonCancel)

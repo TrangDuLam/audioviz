@@ -6,7 +6,7 @@ with open("README.md", "r") as f:
 setup(
     name='audioviz',
     packages=['audioviz'],
-    version='0.2.0',
+    version='0.2.1',
     
     description='An user-friendly music information retrieval tools interfacing with Google Colab',
     long_description=long_description,
@@ -28,7 +28,7 @@ setup(
                         "plotly",
                         "soundfile",
                         ],
-
+    include_package_data=True,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Science/Research',
