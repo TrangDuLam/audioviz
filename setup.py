@@ -6,7 +6,7 @@ with open("README.md", "r") as f:
 setup(
     name='audioviz',
     packages=['audioviz'],
-    version='0.1.8',
+    version='0.2.0',
     
     description='An user-friendly music information retrieval tools interfacing with Google Colab',
     long_description=long_description,
