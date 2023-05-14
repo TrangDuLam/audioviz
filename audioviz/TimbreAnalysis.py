@@ -96,7 +96,7 @@ def spectral_bandwidth_analysis(y: npt.ArrayLike, sr: int, save_to_csv: bool = T
     centroid = librosa.feature.spectral_centroid(S=S)
 
     times = librosa.times_like(spec_bw)
-    freqs = librosa.fft_frequencies(sr, n_fft = nfft)
+    freqs = librosa.fft_frequencies(sr = sr, n_fft = nfft)
 
     hmap = go.Heatmap(z=S_dB, x=times, y=freqs,
                     colorbar=dict(title='dB'), colorscale='Viridis')
