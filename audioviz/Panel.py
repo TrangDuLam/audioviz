@@ -13,10 +13,18 @@ class Dashboard:
         
     def simple_chord_helper(self):
 
-        X, Fs_X, x, Fs, x_dur = compute_chromagram_from_filename(self.fn)
+        X, _, _, _, x_dur = compute_chromagram_from_filename(self.fn)
         _, chord_max = chord_recognition_template(X, norm_sim='max', nonchord=False)
+        chord_labels = get_chord_labels(nonchord=False)
         
-        return chord_max, x_dur
+        chord_sum = np.sum(chord_max, axis=1)
+        threshold = sorted(chord_sum, reverse=True)[6]
+        chord_selected = chord_sum > threshold
+        
+        label_to_show = chord_labels[chord_selected]
+        chord_to_show = chord_max[chord_selected]
+        
+        return chord_to_show, x_dur, label_to_show
     
     def simple_pitch_helper(self):
         
@@ -41,14 +49,13 @@ class Dashboard:
         ax0.set_title('Waveform')
         
         # A simple version of chord recognition
-        chord_map, dur = self.simple_chord_helper()
+        chord_map, dur, labels = self.simple_chord_helper()
         ax1 = fig.add_subplot(3, 1, 2)
         ax1.imshow(chord_map, interpolation='none', cmap='gray_r', aspect='auto', origin='lower')
         times = np.round(np.linspace(0, dur, chord_map.shape[1]), 1)
-        chord_labels = get_chord_labels(nonchord=False)
         ax1.set_xticks(np.arange(0, len(times), 323), times[::323])
         ax1.xaxis.set_ticklabels([])
-        ax1.set_yticks(np.arange(0, len(chord_labels)), chord_labels)
+        ax1.set_yticks(np.arange(0, len(labels)), labels)
         ax1.set_ylabel('Chord')
         ax1.set_title('Chord Recognition')
         
