@@ -87,7 +87,17 @@ def pitch_class_histogram_chroma(y: npt.ArrayLike, sr: int, higher_resolution: b
     '''
 
     S = np.abs(librosa.stft(y))
-    notes = np.array(librosa.key_to_notes('C:maj')) # For x-axis legend
+    
+    notes_maj = librosa.key_to_notes('C:maj')
+    notes_min = librosa.key_to_notes('C:min')
+    # Should print minor scales
+    notes = []
+
+    for i, j in zip(notes_maj, notes_min) :
+        
+        if i == j : notes.append(i)
+        else : notes.append(i + '/' + j)
+        
 
     if not higher_resolution :
 
@@ -198,6 +208,16 @@ def pitch_class_histogram_f0(y: npt.ArrayLike, sr: int, higher_resolution: bool)
     higher_resolution: to provide more detailed statistics 
     save_to_csv: to save the statistics as .csv
     '''
+    
+    # Make up the custom display notes (major + minor)
+    notes_maj = librosa.key_to_notes('C:maj')
+    notes_min = librosa.key_to_notes('C:min')
+    notes_disp = []
+
+    for i, j in zip(notes_maj, notes_min) :
+        
+        if i == j : notes_disp.append(i)
+        else : notes_disp.append(i + '/' + j)
 
     notes = librosa.key_to_notes('C:maj')
     notesToRow = dict()
@@ -223,7 +243,7 @@ def pitch_class_histogram_f0(y: npt.ArrayLike, sr: int, higher_resolution: bool)
         occurProbs = pitchOccur / np.sum(pitchOccur)
 
         fig = go.Figure(data=[go.Bar(
-              x = notes, y = occurProbs * 100
+              x = notes_disp, y = occurProbs * 100
         )])
 
         # The way to add color
@@ -282,7 +302,7 @@ def pitch_class_histogram_f0(y: npt.ArrayLike, sr: int, higher_resolution: bool)
                           xaxis = dict(
                                     tickmode = 'array',
                                     tickvals = [4, 14, 24, 34, 44, 54, 64, 74, 84, 94, 104, 114],
-                                    ticktext = notes12
+                                    ticktext = notes_disp
                                     ),
                    yaxis_title='Occurrence',
                    yaxis_ticksuffix =' %')
