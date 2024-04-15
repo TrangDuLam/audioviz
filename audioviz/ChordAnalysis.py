@@ -32,7 +32,8 @@ def compute_chromagram_from_filename(fn_wav, Fs=22050, N=4096, H=2048, gamma=Non
         Fs (scalar): Sampling rate of audio signal
         x_dur (float): Duration (seconds) of audio signal
     """
-    x, Fs = librosa.load(fn_wav, sr=Fs)
+    
+    x = librosa.load(fn_wav)
     x_dur = x.shape[0] / Fs
     if version == 'STFT':
         # Compute chroma features with STFT

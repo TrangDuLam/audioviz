@@ -22,70 +22,53 @@ from google.colab import files
 
 from numpy import typing as npt
 
-@jit(nopython=True)
-def compute_sm_dot(X, Y):
-    """Computes similarty matrix from feature sequences using dot (inner) product
+def my_compute_sm_from_filename(fn_wav, L=21, H=5, L_smooth=16, tempo_rel_set=np.array([1]),
+                             shift_set=np.array([0]), strategy='relative', scale=True, thresh=0.15,
+                             penalty=0.0, binarize=False):
+    """Compute an SSM
 
-    Notebook: C4/C4S2_SSM.ipynb
-
-    Args:
-        X (np.ndarray): First sequence
-        Y (np.ndarray): Second Sequence
-
-    Returns:
-        S (float): Dot product
-    """
-    S = np.dot(np.transpose(X), Y)
-    return S
-
-def plot_feature_ssm(X, Fs_X, S, Fs_S, ann, duration, color_ann=None,
-                    title='', label='Time (seconds)', time=True,
-                    figsize=(5, 6), fontsize=10, clim_X=None, clim=None):
-    """Plot SSM along with feature representation and annotations (standard setting is time in seconds)
-
-    Notebook: C4/C4S2_SSM.ipynb
+    Notebook: C4/C4S2_SSM-Thresholding.ipynb
 
     Args:
-        X: Feature representation
-        Fs_X: Feature rate of ``X``
-        S: Similarity matrix (SM)
-        Fs_S: Feature rate of ``S``
-        ann: Annotaions
-        duration: Duration
-        color_ann: Color annotations (see :func:`libfmp.b.b_plot.plot_segments`) (Default value = None)
-        title: Figure title (Default value = '')
-        label: Label for time axes (Default value = 'Time (seconds)')
-        time: Display time axis ticks or not (Default value = True)
-        figsize: Figure size (Default value = (5, 6))
-        fontsize: Font size (Default value = 10)
-        clim_X: Color limits for matrix X (Default value = None)
-        clim: Color limits for matrix ``S`` (Default value = None)
+        fn_wav (str): Path and filename of wav file
+        L (int): Length of smoothing filter (Default value = 21)
+        H (int): Downsampling factor (Default value = 5)
+        L_smooth (int): Length of filter (Default value = 16)
+        tempo_rel_set (np.ndarray):  Set of relative tempo values (Default value = np.array([1]))
+        shift_set (np.ndarray): Set of shift indices (Default value = np.array([0]))
+        strategy (str): Thresholding strategy (see :func:`libfmp.c4.c4s2_ssm.compute_sm_ti`)
+            (Default value = 'relative')
+        scale (bool): If scale=True, then scaling of positive values to range [0,1] (Default value = True)
+        thresh (float): Treshold (meaning depends on strategy) (Default value = 0.15)
+        penalty (float): Set values below treshold to value specified (Default value = 0.0)
+        binarize (bool): Binarizes final matrix (positive: 1; otherwise: 0) (Default value = False)
 
     Returns:
-        fig: Handle for figure
-        ax: Handle for axes
+        x (np.ndarray): Audio signal
+        x_duration (float): Duration of audio signal (seconds)
+        X (np.ndarray): Feature sequence
+        Fs_feature (scalar): Feature rate
+        S_thresh (np.ndarray): SSM
+        I (np.ndarray): Index matrix
     """
-    cmap = libfmp.b.compressed_gray_cmap(alpha=-10)
-    fig, ax = plt.subplots(3, 3, gridspec_kw={'width_ratios': [0.1, 1, 0.05],
-                                              'wspace': 0.2,
-                                              'height_ratios': [0.3, 1, 0.1]},
-                           figsize=figsize)
-    libfmp.b.plot_matrix(X, Fs=Fs_X, ax=[ax[0, 1], ax[0, 2]], clim=clim_X,
-                         xlabel='', ylabel='', title=title)
-    ax[0, 0].axis('off')
-    libfmp.b.plot_matrix(S, Fs=Fs_S, ax=[ax[1, 1], ax[1, 2]], cmap=cmap, clim=clim,
-                         title='', xlabel='', ylabel='', colorbar=True)
-    ax[1, 1].set_xticks([])
-    ax[1, 1].set_yticks([])
-    libfmp.b.plot_segments(ann, ax=ax[2, 1], time_axis=time, fontsize=fontsize,
-                           colors=color_ann,
-                           time_label=label, time_max=duration*Fs_X)
-    ax[2, 2].axis('off')
-    ax[2, 0].axis('off')
-    libfmp.b.plot_segments(ann, ax=ax[1, 0], time_axis=time, fontsize=fontsize,
-                           direction='vertical', colors=color_ann,
-                           time_label=label, time_max=duration*Fs_X)
-    return fig, ax
+    # Waveform
+
+    x, Fs = librosa.load(fn_wav)
+    x_duration = x.shape[0] / Fs
+
+    # Chroma Feature Sequence and SSM (10 Hz)
+    C = librosa.feature.chroma_stft(y=x, sr=Fs, tuning=0, norm=2, hop_length=2205, n_fft=4410)
+    Fs_C = Fs / 2205
+
+    # Chroma Feature Sequence and SSM
+    X, Fs_feature = libfmp.c3.smooth_downsample_feature_sequence(C, Fs_C, filt_len=L, down_sampling=H)
+    X = libfmp.c3.normalize_feature_sequence(X, norm='2', threshold=0.001)
+
+    # Compute SSM
+    S, I = libfmp.c4.compute_sm_ti(X, X, L=L_smooth, tempo_rel_set=tempo_rel_set, shift_set=shift_set, direction=2)
+    S_thresh = libfmp.c4.threshold_matrix(S, thresh=thresh, strategy=strategy,
+                                          scale=scale, penalty=penalty, binarize=binarize)
+    return x, x_duration, X, Fs_feature, S_thresh, I
 
 def SSM_chorma(wav_filename:str, anno_csv: str, hop_size: int = 4096, Nfft: int = 1024) -> None :
 
@@ -109,8 +92,8 @@ def SSM_chorma(wav_filename:str, anno_csv: str, hop_size: int = 4096, Nfft: int 
     ann_frames = libfmp.c4.convert_structure_annotation(ann, Fs=Fs_X) 
     
     X = libfmp.c3.normalize_feature_sequence(X, norm='2', threshold=0.001)
-    S = compute_sm_dot(X,X)
-    fig, ax = plot_feature_ssm(X, 1, S, 1, ann_frames, duration*Fs_X, color_ann=color_ann,
+    S = libfmp.c4.compute_sm_dot(X,X)
+    fig, ax = libfmp.c4.plot_feature_ssm(X, 1, S, 1, ann_frames, duration*Fs_X, color_ann=color_ann,
                                clim_X=[0,1], clim=[0,1], label='Time (frames)',
                                title='Chroma feature (Fs=%0.2f)'%Fs_X)
 
@@ -250,8 +233,9 @@ def SSM_Novelty(wav_filename:str, anno_csv: str) -> None :
 
     S_dict = {}
     Fs_dict = {}
-    x, x_duration, X, Fs_X, S, I = libfmp.c4.compute_sm_from_filename(fn_wav, 
+    x, x_duration, X, Fs_X, S, I = my_compute_sm_from_filename(fn_wav, 
                                                     L=11, H=5, L_smooth=1, thresh=1)
+    # Change compute_sm_from_filename to my_compute_sm_from_filename
 
     S_dict[0], Fs_dict[0] = S, Fs_X
     ann_frames = libfmp.c4.convert_structure_annotation(ann, Fs=Fs_X) 
@@ -260,8 +244,10 @@ def SSM_Novelty(wav_filename:str, anno_csv: str) -> None :
                 title='Feature rate: %0.0f Hz'%(Fs_X), figsize=(4.5, 5.5))
     float_box.add_fig(fig)
 
-    x, x_duration, X, Fs_X, S, I = libfmp.c4.compute_sm_from_filename(fn_wav, 
+    x, x_duration, X, Fs_X, S, I = my_compute_sm_from_filename(fn_wav, 
                                                     L=41, H=10, L_smooth=1, thresh=1)
+    # Change compute_sm_from_filename to my_compute_sm_from_filename
+
     S_dict[1], Fs_dict[1] = S, Fs_X
     ann_frames = libfmp.c4.convert_structure_annotation(ann, Fs=Fs_X) 
     fig, ax = libfmp.c4.plot_feature_ssm(X, 1, S, 1, ann_frames, x_duration*Fs_X,
@@ -327,8 +313,9 @@ def SSM_Novelty_user_selection(wav_filename:str, anno_csv: str, save_to_csv: boo
     ann, color_ann = libfmp.c4.read_structure_annotation(os.path.join(anno_csv), 
                                                         fn_ann_color=anno_csv)
 
-    x, x_duration, X, Fs_X, S, I = libfmp.c4.compute_sm_from_filename(fn_wav, 
+    x, x_duration, X, Fs_X, S, I = my_compute_sm_from_filename(fn_wav, 
                                                     L=L_filter, H=hopsize, L_smooth=1, thresh=1)
+    # Change compute_sm_from_filename to my_compute_sm_from_filename
 
     ann_frames = libfmp.c4.convert_structure_annotation(ann, Fs=Fs_X) 
     fig, ax = libfmp.c4.plot_feature_ssm(X, 1, S, 1, ann_frames, x_duration*Fs_X,
